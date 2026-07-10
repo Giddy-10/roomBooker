@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  name      String
+  password  String?   // Nullable for OAuth users
+  bookings  Booking[]
+  tickets   Ticket[]
+  createdAt DateTime  @default(now())
+}
+
+model Room {
+  id           String    @id @default(uuid())
+  name         String
+  capacity     Int
+  isGroupRoom  Boolean   @default(false)
+  inService    Boolean   @default(true)
+  bookings     Booking[]
+  tickets      Ticket[]
+}
+
+model Booking {
+  id         String   @id @default(uuid())
+  userId     String
+  roomId     String
+  partySize  Int      @default(1)
+  startTime  DateTime
+  endTime    DateTime
+  
+  user       User     @relation(fields: [userId], references: [id])
+  room       Room     @relation(fields: [roomId], references: [id])
+  
+  createdAt  DateTime @default(now())
+}
+
+model Ticket {
+  id          String   @id @default(uuid())
+  description String
+  userId      String
+  roomId      String
+  status      String   @default("OPEN")
+  
+  user        User     @relation(fields: [userId], references: [id])
+  room        Room     @relation(fields: [roomId], references: [id])
+  
+  createdAt   DateTime @default(now())
+}
