@@ -1,5 +1,11 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -8,47 +14,49 @@ datasource db {
 
 model User {
   id        String    @id @default(uuid())
-  email     String    @unique
-  name      String
-  password  String?   // Nullable for OAuth users
-  bookings  Booking[]
-  tickets   Ticket[]
+  email     String    @unique // Enforces school email uniquely
+  password  String?   // Nullable for users who register exclusively via Google OAuth
+  googleId  String?   @unique // Captured via Google OAuth registration/login
+  name      String?
   createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  bookings  Booking[]
 }
 
 model Room {
-  id           String    @id @default(uuid())
-  name         String
-  capacity     Int
-  isGroupRoom  Boolean   @default(false)
-  inService    Boolean   @default(true)
-  bookings     Booking[]
-  tickets      Ticket[]
+  id         String   @id @default(uuid())
+  name       String   // e.g., "Room 2B", "Lab Alpha"
+  capacity   Int      // Used to calculate booking thresholds
+  category   String   // Restrained to "solo" or "group" via application logic
+  location   String
+  isOutOfService Boolean @default(false) // Displays room operational status site-wide
+  
+  bookings   Booking[]
+  tickets    Ticket[]
 }
 
 model Booking {
   id         String   @id @default(uuid())
   userId     String
   roomId     String
-  partySize  Int      @default(1)
-  startTime  DateTime
-  endTime    DateTime
-  
+  startTime  DateTime // Combines selected date and start time
+  endTime    DateTime // Calculated automatically via user-selected duration
+  groupSize  Int      // Checked against room capacity thresholds during booking
+  createdAt  DateTime @default(now())
+
   user       User     @relation(fields: [userId], references: [id])
   room       Room     @relation(fields: [roomId], references: [id])
-  
-  createdAt  DateTime @default(now())
+
+  @@index([roomId, startTime, endTime]) // Speeds up double-booking conflict queries
 }
 
 model Ticket {
   id          String   @id @default(uuid())
-  description String
-  userId      String
   roomId      String
-  status      String   @default("OPEN")
-  
-  user        User     @relation(fields: [userId], references: [id])
-  room        Room     @relation(fields: [roomId], references: [id])
-  
+  facility    String   // e.g., "AC Unit", "Projector HDMI Port", "Whiteboard"
+  description String   // Specific layout of the breakdown reported by the user
+  status      String   @default("OPEN") // "OPEN", "IN_PROGRESS", "RESOLVED"
   createdAt   DateTime @default(now())
+
+  room        Room     @relation(fields: [roomId], references: [id])
 }
