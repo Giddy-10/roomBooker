@@ -3,7 +3,6 @@ import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import prisma from "../db.js"
 import { OAuth2Client } from "google-auth-library"
-import { NullsOrder } from "../generated/prisma/internal/prismaNamespaceBrowser.js"
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 
