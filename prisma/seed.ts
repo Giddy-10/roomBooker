@@ -12,8 +12,10 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   console.log('🌱 Starting comprehensive database seeding process...');
 
+  // Cascade deletes everything down automatically
   await prisma.room.deleteMany();
 
+  // Create Solo Pod with minimal amenities
   await prisma.room.create({
     data: {
       name: "Solo Pod 101",
@@ -29,6 +31,7 @@ async function main() {
     }
   });
 
+  // Create an elite Group Room containing all facilities
   await prisma.room.create({
     data: {
       name: "Group Room Alpha",
@@ -47,6 +50,7 @@ async function main() {
     }
   });
 
+  // Create a standard Group Room with intermediate tools
   await prisma.room.create({
     data: {
       name: "Group Room Beta",
