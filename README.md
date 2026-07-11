@@ -1,6 +1,6 @@
 # API Integration Guide
 
-- Base URL: http://localhost:5000
+- Base URL: https://roombooker-rm88.onrender.com
 
 - Content-Type: application/json
 
