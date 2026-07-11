@@ -12,8 +12,8 @@ export const getRooms = async (req: Request, res: Response): Promise<void> => {
 			},
 		})
 
-		const soloRooms = rooms.filter((room) => room.category === "solo")
-		const groupRooms = rooms.filter((room) => room.category === "group")
+		const soloRooms = rooms.filter((room: any) => room.category === "solo")
+		const groupRooms = rooms.filter((room: any) => room.category === "group")
 
 		res.status(200).json({
 			totalRoomsCount: rooms.length,
@@ -127,7 +127,7 @@ export const createBooking = async (
 			}
 		}
 
-		const newBooking = await prisma.$transaction(async (tx) => {
+		const newBooking = await prisma.$transaction(async (tx: any) => {
 			const conflict = await tx.booking.findFirst({
 				where: {
 					roomId: roomId,
@@ -195,8 +195,8 @@ export const getUserBookings = async (req: AuthenticatedRequest, res: Response):
 
     const now = new Date();
 
-    const pastBookings = allBookings.filter(booking => new Date(booking.endTime) < now);
-    const upcomingBookings = allBookings.filter(booking => new Date(booking.endTime) >= now);
+    const pastBookings = allBookings.filter((booking: any) => new Date(booking.endTime) < now);
+    const upcomingBookings = allBookings.filter((booking: any) => new Date(booking.endTime) >= now);
 
     res.status(200).json({
       userId,

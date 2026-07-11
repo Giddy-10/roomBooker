@@ -5,6 +5,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_zone';
 
 export interface AuthenticatedRequest extends Request {
   userId?: string;
+  body: any;
 }
 
 export const authenticateToken = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
