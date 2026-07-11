@@ -24,15 +24,33 @@ model User {
 }
 
 model Room {
-  id         String   @id @default(uuid())
-  name       String   // e.g., "Room 2B", "Lab Alpha"
-  capacity   Int      // Used to calculate booking thresholds
-  category   String   // Restrained to "solo" or "group" via application logic
-  location   String
-  isOutOfService Boolean @default(false) // Displays room operational status site-wide
-  
-  bookings   Booking[]
-  tickets    Ticket[]
+  id             String     @id @default(uuid())
+  name           String
+  capacity       Int
+  category       String     // "solo" or "group"
+  location       String
+  isOutOfService Boolean    @default(false) // Total room shutdown flag
+  facilities     Facility[] // Relation field to individual components
+  bookings       Booking[]
+  tickets        Ticket[]
+}
+
+model Facility {
+  id             String  @id @default(uuid())
+  name           String  // e.g., "WiFi", "Smartboard", "Whiteboard", "Projector"
+  isOutOfService Boolean @default(false) // Tracks if this specific item is broken
+  roomId         String
+  room           Room    @relation(fields: [roomId], references: [id], onDelete: Cascade)
+}
+
+model Ticket {
+  id          String   @id @default(uuid())
+  roomId      String
+  facility    String   // Stores the name of the reported facility (e.g., "WiFi")
+  description String
+  status      String   @default("OPEN") // "OPEN" or "RESOLVED"
+  createdAt   DateTime @default(now())
+  room        Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
 }
 
 model Booking {
@@ -48,15 +66,4 @@ model Booking {
   room       Room     @relation(fields: [roomId], references: [id])
 
   @@index([roomId, startTime, endTime]) // Speeds up double-booking conflict queries
-}
-
-model Ticket {
-  id          String   @id @default(uuid())
-  roomId      String
-  facility    String   // e.g., "AC Unit", "Projector HDMI Port", "Whiteboard"
-  description String   // Specific layout of the breakdown reported by the user
-  status      String   @default("OPEN") // "OPEN", "IN_PROGRESS", "RESOLVED"
-  createdAt   DateTime @default(now())
-
-  room        Room     @relation(fields: [roomId], references: [id])
 }
